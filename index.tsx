@@ -34,17 +34,6 @@ const settings = definePluginSettings({
         default: false,
         description: "Show separate button to blur conversation / Mostrar botão separado para flouter a conversa / Montrer un bouton séparé pour flouter la conversation",
     },
-    showLockToggle: {
-        type: OptionType.BOOLEAN,
-        default: false,
-        description: "Show lock button to password protect Discord / Mostrar botão de cadeado para proteger Discord / Montrer le bouton de cadenas pour protéger Discord",
-    },
-    lockPassword: {
-        type: OptionType.STRING,
-        description: "Password to unlock Discord / Senha para desbloquear Discord / Mot de passe pour déverrouiller Discord",
-        default: "1234",
-        secret: true,
-    },
 });
 
 const i18n = {
@@ -57,10 +46,6 @@ const i18n = {
         sidebarHide: "Hide sidebar",
         blurOn: "Unblur chat",
         blurOff: "Blur chat",
-        lockOn: "Unlock Discord",
-        lockOff: "Lock Discord",
-        enterPassword: "Enter password:",
-        wrongPassword: "Wrong password!",
         description: "Hide the server list and sidebar with one click to focus on chat/call. Optional extra buttons in settings.",
     },
     "pt-br": {
@@ -72,10 +57,6 @@ const i18n = {
         sidebarHide: "Ocultar barra lateral",
         blurOn: "Desfocar chat",
         blurOff: "Flouter chat",
-        lockOn: "Desbloquear Discord",
-        lockOff: "Bloquear Discord",
-        enterPassword: "Digite a senha:",
-        wrongPassword: "Senha incorreta!",
         description: "Oculta a lista de servidores e barra lateral com um clique para focar no chat/call. Botões extras opcionais nas configurações.",
     },
     "fr": {
@@ -87,10 +68,6 @@ const i18n = {
         sidebarHide: "Masquer la barre latérale",
         blurOn: "Dés-flouter chat",
         blurOff: "Flouter chat",
-        lockOn: "Déverrouiller Discord",
-        lockOff: "Verrouiller Discord",
-        enterPassword: "Entrez le mot de passe:",
-        wrongPassword: "Mot de passe incorrect!",
         description: "Masque la liste des serveurs et la barre latérale d'un clic pour vous concentrer sur le chat/l'appel. Boutons supplémentaires optionnels dans les paramètres.",
     },
 };
@@ -108,14 +85,12 @@ let focusHidden = false;
 let guildHidden = false;
 let sidebarHidden = false;
 let chatBlurred = false;
-let discordLocked = false;
 
 // Buttons
 let focusBtn: HTMLDivElement | null = null;
 let guildBtn: HTMLDivElement | null = null;
 let sidebarBtn: HTMLDivElement | null = null;
 let blurBtn: HTMLDivElement | null = null;
-let lockBtn: HTMLDivElement | null = null;
 
 function applyCSS() {
     if (!styleEl) {
@@ -123,19 +98,41 @@ function applyCSS() {
         styleEl.id = "vc-focusMode-style";
     }
 
-    const shouldBlur = focusHidden || guildHidden || sidebarHidden || discordLocked;
+    const hideGuild = focusHidden || guildHidden;
+    const hideSidebar = focusHidden || sidebarHidden;
 
     const rules: string[] = [];
 
-    if (shouldBlur) {
+    if (hideGuild) {
         rules.push(`
-            [class*="base_"],
-            [class*="app_"],
-            [class*="container_"],
-            [class*="chat_"] {
-                filter: blur(12px) !important;
-                pointer-events: ${discordLocked ? "none" : "auto"} !important;
-                user-select: ${discordLocked ? "none" : "auto"} !important;
+            [class*="guilds_"] {
+                width: 0 !important;
+                min-width: 0 !important;
+                flex-basis: 0 !important;
+                overflow: hidden !important;
+                padding: 0 !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                transition: width 0.2s ease, opacity 0.15s ease;
+            }
+        `);
+    }
+
+    if (hideSidebar) {
+        rules.push(`
+            [class*="sidebarList_"],
+            [class*="sidebarListRounded_"] {
+                width: 0 !important;
+                min-width: 0 !important;
+                flex-basis: 0 !important;
+                overflow: hidden !important;
+                padding: 0 !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                transition: width 0.2s ease, opacity 0.15s ease;
+            }
+            [class*="panels_"] {
+                display: none !important;
             }
         `);
     }
@@ -211,32 +208,6 @@ function updateButtons() {
         blurBtn.title = chatBlurred ? t("blurOn") : t("blurOff");
         blurBtn.style.backgroundColor = chatBlurred ? "#ed4245" : "#9c27b0";
     }
-    if (lockBtn) {
-        lockBtn.textContent = discordLocked ? "🔓" : "🔒";
-        lockBtn.title = discordLocked ? t("lockOn") : t("lockOff");
-        lockBtn.style.backgroundColor = discordLocked ? "#ed4245" : "#5865f2";
-    }
-}
-
-function promptPassword() {
-    const password = prompt(t("enterPassword"));
-    if (password === settings.store.lockPassword) {
-        discordLocked = false;
-        applyCSS();
-        updateButtons();
-    } else if (password !== null) {
-        alert(t("wrongPassword"));
-    }
-}
-
-function toggleLock() {
-    if (discordLocked) {
-        promptPassword();
-    } else {
-        discordLocked = true;
-        applyCSS();
-        updateButtons();
-    }
 }
 
 function toggleFocus() {
@@ -306,17 +277,6 @@ function injectButtons() {
         leading.querySelector(".vc-focusMode-blur")?.remove();
         blurBtn = null;
     }
-
-    // Lock toggle (optional)
-    if (settings.store.showLockToggle && !leading.querySelector(".vc-focusMode-lock")) {
-        lockBtn = makeBtn("vc-focusMode-lock", "Toggle Lock", toggleLock);
-        updateButtons();
-        leading.appendChild(lockBtn);
-    }
-    if (!settings.store.showLockToggle && leading.querySelector(".vc-focusMode-lock")) {
-        leading.querySelector(".vc-focusMode-lock")?.remove();
-        lockBtn = null;
-    }
 }
 
 function startObserver() {
@@ -325,8 +285,6 @@ function startObserver() {
             focusBtn = null;
             guildBtn = null;
             sidebarBtn = null;
-            blurBtn = null;
-            lockBtn = null;
             injectButtons();
         }
     });
@@ -353,16 +311,13 @@ export default definePlugin({
         guildBtn?.remove();
         sidebarBtn?.remove();
         blurBtn?.remove();
-        lockBtn?.remove();
         focusBtn = null;
         guildBtn = null;
         sidebarBtn = null;
         blurBtn = null;
-        lockBtn = null;
         focusHidden = false;
         guildHidden = false;
         sidebarHidden = false;
         chatBlurred = false;
-        discordLocked = false;
     },
 });
