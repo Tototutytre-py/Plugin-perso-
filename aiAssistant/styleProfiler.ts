@@ -15,14 +15,6 @@ const STOP_WORDS = new Set([
     "le", "la", "les", "un", "une", "des", "et", "ou", "mais", "dans", "sur", "à", "pour", "de", "est", "sont",
     "avoir", "être", "je", "tu", "il", "elle", "nous", "vous", "ils", "elles", "me", "te", "se", "qui", "que",
 ]);
-    // Anglais
-    "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "is", "are", "be", "been",
-    "have", "has", "do", "does", "did", "will", "would", "could", "should", "may", "might", "can", "must",
-    "i", "you", "he", "she", "it", "we", "they", "me", "him", "her", "us", "them",
-    // Français
-    "le", "la", "les", "un", "une", "des", "et", "ou", "mais", "dans", "sur", "à", "pour", "de", "est", "sont",
-    "avoir", "être", "je", "tu", "il", "elle", "nous", "vous", "ils", "elles", "me", "te", "se", "qui", "que",
-]);
 
 /**
  * Extrait les emojis d'un texte
