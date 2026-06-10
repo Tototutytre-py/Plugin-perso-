@@ -35,7 +35,6 @@ const settings = definePluginSettings({
         default: false,
         description: "Show separate button to blur conversation / Mostrar botão separado para flouter a conversa / Montrer un bouton séparé pour flouter la conversation",
     },
-<<<<<<< HEAD
     showLockToggle: {
         type: OptionType.BOOLEAN,
         default: false,
@@ -49,8 +48,6 @@ const settings = definePluginSettings({
     },
     // AI Assistant settings
     ...aiAssistantSettings,
-=======
->>>>>>> fedb4e4820b819f38c909ac377021cf13dedae85
 });
 
 const i18n = {
