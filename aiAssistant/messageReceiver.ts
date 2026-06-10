@@ -3,7 +3,6 @@
  * S'intègre aux événements Discord pour les messages entrants
  */
 
-import { MessageStore } from "@api/index";
 import { createAIProvider } from "./aiProvider";
 import { buildStyleProfile, mergeStyleProfiles } from "./styleProfiler";
 import { generateAIResponse, getRecentMessages } from "./messageProcessor";
@@ -39,30 +38,17 @@ export class MessageReceiver {
 
     /**
      * Récupère les derniers messages d'un canal
-     * NOTE: Cette fonction doit être adaptée selon l'API Discord disponible dans Vencord
+     * NOTE: Cette fonction nécessite une intégration plus profonde avec l'API Discord
+     * Pour maintenant, elle retourne un array vide - à implémenter avec les hooks appropriés
      */
     private async fetchUserMessages(channelId: string, limit: number): Promise<string[]> {
         try {
-            // Récupérer le canal
-            const channel = MessageStore.getChannel(channelId);
-            if (!channel) return [];
-
-            // Récupérer les messages du canal
-            // NOTE: L'API varie selon la version de Vencord
-            const messages = MessageStore.getMessages(channelId)?._array || [];
-
-            // Filtrer les messages récents et construire les textes
-            const userMessages: string[] = [];
+            // TODO: Intégrer avec l'API Discord pour récupérer les messages réels
+            // Cette implémentation nécessite l'accès à MessageStore ou un event listener
+            // qui n'est pas disponible directement via l'API Vencord publique
             
-            for (let i = messages.length - 1; i >= 0 && userMessages.length < limit; i--) {
-                const msg = messages[i];
-                // Vérifier si c'est un message de l'utilisateur courant
-                if (msg?.content && msg?.type === 0) { // Type 0 = message normal
-                    userMessages.unshift(msg.content); // Ajouter en début pour maintenir l'ordre
-                }
-            }
-
-            return userMessages;
+            console.log(`Fetching ${limit} messages from channel ${channelId} (not implemented yet)`);
+            return [];
         } catch (error) {
             console.error("Error fetching user messages:", error);
             return [];
