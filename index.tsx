@@ -35,17 +35,6 @@ const settings = definePluginSettings({
         default: false,
         description: "Show separate button to blur conversation / Mostrar botão separado para flouter a conversa / Montrer un bouton séparé pour flouter la conversation",
     },
-    showLockToggle: {
-        type: OptionType.BOOLEAN,
-        default: false,
-        description: "Show lock button to password protect Discord / Mostrar botão de cadeado para proteger Discord / Montrer le bouton de cadenas pour protéger Discord",
-    },
-    lockPassword: {
-        type: OptionType.STRING,
-        description: "Password to unlock Discord / Senha para desbloquear Discord / Mot de passe pour déverrouiller Discord",
-        default: "1234",
-        secret: true,
-    },
     // AI Assistant settings
     ...aiAssistantSettings,
 });
@@ -488,15 +477,11 @@ export default definePlugin({
         guildHidden = false;
         sidebarHidden = false;
         chatBlurred = false;
-<<<<<<< HEAD
-        discordLocked = false;
 
         // Clean up AI Assistant
         removeAIAssistantButton();
         aiMessageReceiver?.resetCache();
         aiMessageReceiver = null;
         currentChannelId = null;
-=======
->>>>>>> fedb4e4820b819f38c909ac377021cf13dedae85
     },
 });
